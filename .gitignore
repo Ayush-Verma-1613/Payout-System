@@ -2,6 +2,9 @@ node_modules/
 *.log
 npm-debug.log*
 
+# Environment file (copy .env.example to .env locally). Never commit real secrets.
+.env
+
 # Local SQLite database files (schema is created via `npm run setup`)
 prisma/dev.db
 prisma/dev.db-journal

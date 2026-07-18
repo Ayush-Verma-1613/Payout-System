@@ -46,16 +46,19 @@ Affiliate sellers earn commissions on sales. Each sale flows through a lifecycle
 # 1. Install dependencies
 npm install
 
-# 2. Generate the Prisma client and create the local SQLite schema
+# 2. Create your local env file (defaults work out of the box)
+cp .env.example .env        # Windows PowerShell: copy .env.example .env
+
+# 3. Generate the Prisma client and create the local SQLite schema
 npm run setup
 
-# 3. (optional) Seed the assignment's reference data (john_doe + 3 pending ₹40 sales)
+# 4. (optional) Seed the assignment's reference data (john_doe + 3 pending ₹40 sales)
 npm run seed
 
-# 4. Run the test suite (proves the ₹68 example and every business rule)
+# 5. Run the test suite (proves the ₹68 example and every business rule)
 npm test
 
-# 5. Start the API server (defaults to http://localhost:3000)
+# 6. Start the API server (defaults to http://localhost:3000)
 npm start
 ```
 
