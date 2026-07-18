@@ -1,0 +1,83 @@
+// Prisma schema for the User Payout Management System.
+//
+// Money is stored everywhere as an integer number of paise (1 rupee = 100 paise)
+// to avoid floating-point rounding errors on financial values.
+//
+// The LedgerEntry table is an append-only source of truth: a user's withdrawable
+// balance is always SUM(LedgerEntry.amount) for that user. Nothing mutates a
+// running "balance" column, which keeps the system auditable and free of
+// lost-update races.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int           @id @default(autoincrement())
+  name      String
+  email     String        @unique
+  createdAt DateTime      @default(now())
+
+  sales     Sale[]
+  payouts   Payout[]
+  ledger    LedgerEntry[]
+}
+
+model Sale {
+  id            Int       @id @default(autoincrement())
+  userId        Int
+  user          User      @relation(fields: [userId], references: [id])
+  brand         String
+  earning       Int // paise
+  status        String    @default("pending") // pending | approved | rejected
+  advanceAmount Int? // paise actually paid as advance (null until the advance job runs)
+  advancePaidAt DateTime? // set once; presence guarantees no second advance
+  reconciledAt  DateTime? // set once; presence guarantees no double reconciliation
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  payouts Payout[]
+  ledger  LedgerEntry[]
+
+  @@index([userId, status])
+}
+
+model Payout {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id])
+  type           String // ADVANCE | WITHDRAWAL
+  amount         Int // paise
+  status         String   @default("INITIATED") // INITIATED | SUCCESS | FAILED | CANCELLED | REJECTED
+  saleId         Int?
+  sale           Sale?    @relation(fields: [saleId], references: [id])
+  // DB-enforced idempotency. e.g. "advance:<saleId>" guarantees a sale can never
+  // receive a second advance payout, even under concurrent job runs.
+  idempotencyKey String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  ledger LedgerEntry[]
+
+  @@index([userId, type, createdAt])
+}
+
+model LedgerEntry {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  amount    Int // signed paise: credits are positive, debits are negative
+  type      String // RECONCILE_APPROVED | RECONCILE_REJECTED | WITHDRAWAL_DEBIT | PAYOUT_REVERSAL
+  saleId    Int?
+  sale      Sale?    @relation(fields: [saleId], references: [id])
+  payoutId  Int?
+  payout    Payout?  @relation(fields: [payoutId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}

@@ -1,0 +1,14 @@
+node_modules/
+*.log
+npm-debug.log*
+
+# Local SQLite database files (schema is created via `npm run setup`)
+prisma/dev.db
+prisma/dev.db-journal
+*.sqlite
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

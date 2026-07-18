@@ -1,0 +1,34 @@
+{
+  "name": "payout-system",
+  "version": "1.0.0",
+  "description": "Low-Level Design and working implementation of a User Payout Management System for affiliate sales (advance payouts, reconciliation, withdrawals, failed-payout recovery).",
+  "main": "src/server.js",
+  "scripts": {
+    "setup": "prisma generate && prisma db push",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "seed": "node scripts/seed.js",
+    "pretest": "prisma generate && prisma db push --accept-data-loss",
+    "test": "jest --runInBand"
+  },
+  "keywords": [
+    "payout",
+    "affiliate",
+    "ledger",
+    "low-level-design",
+    "express",
+    "prisma"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "prisma": "^5.22.0",
+    "supertest": "^7.0.0"
+  }
+}
